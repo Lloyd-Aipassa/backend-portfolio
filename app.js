@@ -8,26 +8,45 @@
 // app.use(cors({ origin: "*" }));
 
 
+// const express = require("express");
+// const cors = require("cors");
+// const app = express();
+// const db = require("./connctionToMongdb");
+// const postModelCoin = require("./postModelCoin");
+
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+
+// // Meer specifieke CORS-configuratie
+// app.use(cors({
+// 	origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
+//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   credentials: true // Als je credentials nodig hebt
+// }));
+
+// const cors = require('cors');
+
+// app.use(cors(corsOptions));
+
 const express = require("express");
 const cors = require("cors");
 const app = express();
 const db = require("./connctionToMongdb");
 const postModelCoin = require("./postModelCoin");
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Meer specifieke CORS-configuratie
-app.use(cors({
-	origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
+// CORS-configuratie
+const corsOptions = {
+  origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Als je credentials nodig hebt
-}));
+  credentials: true
+};
 
-const cors = require('cors');
-
+// Middleware
 app.use(cors(corsOptions));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 
 // CRUD applications Inspection
