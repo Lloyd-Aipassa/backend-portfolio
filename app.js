@@ -19,11 +19,15 @@ app.use(express.json());
 
 // Meer specifieke CORS-configuratie
 app.use(cors({
-  origin: 'http://localhost:4321', // Specifiek de oorsprong van je HTML-pagina
+	origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Als je credentials nodig hebt
 }));
+
+const cors = require('cors');
+
+app.use(cors(corsOptions));
 
 
 // CRUD applications Inspection
