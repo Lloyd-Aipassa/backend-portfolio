@@ -48,7 +48,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
+app.options('*', cors(corsOptions));
 // CRUD applications Inspection
 
 //POST
