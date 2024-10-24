@@ -230,12 +230,12 @@ app.post("/users/login", async (req, res) => {
         );
 
         // Zet de token in een cookie
-        res.cookie('jwt', token, {
-            httpOnly: true,        // Voorkomt toegang via JavaScript
-            secure: process.env.NODE_ENV === 'production',  // Alleen HTTPS in productie
-            sameSite: 'strict',    // Bescherming tegen CSRF
-            maxAge: 31536000000        // Cookie vervalt na 1 jaar
-        });
+		res.cookie('jwt', token, {
+			httpOnly: true,        // Voorkomt toegang via JavaScript
+			secure: process.env.NODE_ENV === 'production',  // Alleen HTTPS in productie
+			sameSite: 'none',      // Nodig voor cross-origin requests
+			maxAge: 31536000000    // Cookie vervalt na 1 jaar
+		});
 
         res.json({
             message: "Succesvol ingelogd",
