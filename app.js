@@ -9,20 +9,28 @@ const postModelUser = require("./postModelUser");
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+
+
+
+/************************************************************************************************************/
+/*************************************  Middleware *********************************************************/
+/***********************************************************************************************************/
+
 // CORS-configuratie
 const corsOptions = {
-  origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
+	origin: ['http://localhost:4321', 'https://lloyds-coin-portfolio.netlify.app'],
+	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	credentials: true
+  };
 
-// Middleware
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
+
+// Check voor een webtoken Webtoken configuratie
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.jwt;
 
@@ -39,7 +47,31 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-app.options('*', cors(corsOptions));
+
+// Beveiligde route
+app.get('/users/profile', authenticateToken, (req, res) => {
+    res.json({
+        message: 'Toegang verleend tot profiel',
+        user: req.user
+    });
+});
+
+// Middleware voor redirect naar login
+const redirectIfNotAuthenticated = (req, res, next) => {
+    const token = req.cookies.jwt;
+    
+    if (!token) {
+        return res.redirect('/login');
+    }
+    authenticateToken(req, res, next);
+};
+
+
+
+
+/************************************************************************************************************/
+/************************************* EINDE Middleware *********************************************************/
+/***********************************************************************************************************/
 
 
 
@@ -202,7 +234,7 @@ app.post("/users/login", async (req, res) => {
             httpOnly: true,        // Voorkomt toegang via JavaScript
             secure: process.env.NODE_ENV === 'production',  // Alleen HTTPS in productie
             sameSite: 'strict',    // Bescherming tegen CSRF
-            maxAge: 3600000        // Cookie vervalt na 1 uur
+            maxAge: 31536000000        // Cookie vervalt na 1 jaar
         });
 
         res.json({
@@ -216,23 +248,7 @@ app.post("/users/login", async (req, res) => {
     }
 });
 
-async function fetchUserProfile() {
-    try {
-        const response = await fetch('http://localhost:3001/users/profile', {
-            credentials: 'include',  // Belangrijk voor cookies!
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
 
-        if (response.ok) {
-            const userData = await response.json();
-            console.log('User profile:', userData);
-        }
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-    }
-}
 
 app.post('/users/logout', (req, res) => {
     res.cookie('jwt', '', {
@@ -241,6 +257,32 @@ app.post('/users/logout', (req, res) => {
     });
     res.json({ message: 'Succesvol uitgelogd' });
 });
+
+
+// creer  de check-auth route voor de login pagina (ben je ingelogd dan naar dasbord)
+app.get('/users/check-auth', authenticateToken, (req, res) => {
+    res.json({
+        message: 'Gebruiker is ingelogd',
+        user: req.user
+    });
+});
+
+
+// creer  de check-auth route voor de login pagina (ben je niet ingelogd dan naar login)
+app.get('/users/profile', redirectIfNotAuthenticated, (req, res) => {
+    res.json({
+        message: 'Toegang verleend tot profiel',
+        user: req.user
+    });
+});
+
+app.get('/dashboard', redirectIfNotAuthenticated, (req, res) => {
+    res.json({
+        message: 'Welkom op het dashboard!',
+        user: req.user
+    });
+});
+
 
 // Start de server
 app.listen(3001, () => {
