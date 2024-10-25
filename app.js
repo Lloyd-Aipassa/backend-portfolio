@@ -230,12 +230,19 @@ app.post("/users/login", async (req, res) => {
         );
 
         // Zet de token in een cookie
-		res.cookie('jwt', token, {
-			httpOnly: true,        // Voorkomt toegang via JavaScript
-			secure: process.env.NODE_ENV === 'production',  // Alleen HTTPS in productie
-			sameSite: 'none',      // Nodig voor cross-origin requests
-			maxAge: 31536000000    // Cookie vervalt na 1 jaar
-		});
+		// res.cookie('jwt', token, {
+		// 	httpOnly: true,        // Voorkomt toegang via JavaScript
+		// 	secure: process.env.NODE_ENV === 'production',  // Alleen HTTPS in productie
+		// 	sameSite: 'none',      // Nodig voor cross-origin requests
+		// 	maxAge: 31536000000    // Cookie vervalt na 1 jaar
+		// });
+
+        res.cookie('jwt', token, {
+            httpOnly: true,        // Voorkomt toegang via JavaScript
+            secure: true,          // ALTIJD true voor HTTPS
+            sameSite: 'none',      // Nodig voor cross-origin requests
+            maxAge: 31536000000    // Cookie vervalt na 1 jaar
+        });
 
         res.json({
             message: "Succesvol ingelogd",
@@ -252,14 +259,23 @@ app.post("/users/login", async (req, res) => {
 
 
 
+// app.post('/users/logout', (req, res) => {
+//     res.cookie('jwt', '', {
+//         httpOnly: true,
+//         expires: new Date(0)
+//     });
+//     res.json({ message: 'Succesvol uitgelogd' });
+// });
+
 app.post('/users/logout', (req, res) => {
     res.cookie('jwt', '', {
         httpOnly: true,
-        expires: new Date(0)
+        secure: true,          // Deze miste!
+        sameSite: 'none',      // Deze miste!
+        expires: new Date(0)   // Dit is goed
     });
     res.json({ message: 'Succesvol uitgelogd' });
 });
-
 
 // creer  de check-auth route voor de login pagina (ben je ingelogd dan naar dasbord)
 app.get('/users/check-auth', authenticateToken, (req, res) => {
@@ -290,4 +306,3 @@ app.get('/dashboard', redirectIfNotAuthenticated, (req, res) => {
 app.listen(3001, () => {
 	console.log("db connected to port 3001");
 });
-
